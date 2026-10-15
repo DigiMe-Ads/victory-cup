@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #13266e;
+  --color-navy-dark: #0b1747;
+  --color-navy-light: #22388f;
+  --color-red: #e3202e;
+  --color-red-dark: #b3121e;
+  --color-red-soft: #fde7e9;
+  --color-sun: #ffd400;
+  --color-ice: #eef2fb;
+  --color-sky: #3b82f6;
+  --color-mint: #22c55e;
+
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+  --font-cond: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-sans: "Barlow", system-ui, sans-serif;
+
+  --animate-pulse-dot: pulse-dot 1.4s ease-in-out infinite;
+
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.4; }
+  }
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  @apply bg-[#f5f7fc] font-sans text-navy antialiased;
+}
+
+/* Diagonal red/blue shards in the corners, like the flyers */
+.shards {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.shards::before,
+.shards::after {
+  content: "";
+  position: absolute;
+  width: 46vw;
+  max-width: 560px;
+  aspect-ratio: 1;
+}
+.shards::before {
+  left: -14%;
+  top: -30%;
+  background:
+    linear-gradient(135deg, var(--color-red) 0 30%, transparent 30%),
+    linear-gradient(160deg, transparent 18%, var(--color-navy) 18% 34%, transparent 34%),
+    linear-gradient(115deg, transparent 38%, rgb(227 32 46 / 0.75) 38% 46%, transparent 46%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.shards::after {
+  right: -14%;
+  bottom: -32%;
+  background:
+    linear-gradient(-45deg, var(--color-navy) 0 28%, transparent 28%),
+    linear-gradient(-20deg, transparent 16%, var(--color-red) 16% 30%, transparent 30%),
+    linear-gradient(-65deg, transparent 36%, rgb(19 38 110 / 0.7) 36% 44%, transparent 44%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* Brush streak used under headings ("— 2026 —") */
+.streak {
+  display: inline-block;
+  height: 0.28em;
+  width: 2.4em;
+  background: linear-gradient(90deg, transparent, var(--color-navy) 30%, var(--color-red) 100%);
+  transform: skewX(-25deg);
+  border-radius: 2px;
+}
+.streak.flip { background: linear-gradient(90deg, var(--color-red), var(--color-navy) 70%, transparent); }
+
+/* Slanted label boxes like DATE / VENUE on the banner */
+.slant { transform: skewX(-10deg); }
+.slant > * { transform: skewX(10deg); }
+
+.card {
+  @apply rounded-2xl border border-navy/10 bg-white shadow-[0_8px_24px_-12px_rgb(19_38_110/0.25)];
+}
+
+/* Glowing tile like the logo boxes on the banner */
+.tile {
+  @apply rounded-2xl border-2 border-white bg-gradient-to-b from-white to-ice shadow-[0_0_0_2px_rgb(59_130_246/0.25),0_10px_24px_-10px_rgb(19_38_110/0.45)];
+}
+
+.input {
+  @apply w-full rounded-xl border-2 border-navy/10 bg-white px-3.5 py-2.5 outline-none transition focus:border-navy focus:ring-4 focus:ring-navy/10;
+}
+
+.label {
+  @apply mb-1 block text-sm font-semibold text-navy/70;
+}
+
+.heading {
+  @apply font-display font-bold uppercase tracking-tight;
+}

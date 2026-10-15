@@ -1,0 +1,44 @@
+# Victory Football Carnival 2026
+
+Tournament site for the Victory Football Carnival (Victory Football School), 31 October 2026 at Police Park Grounds.
+React + Vite + Tailwind v4 + Motion, with Supabase for data, auth and live updates.
+
+- **Public:** `/` shows the event and every age group, split into **Boys & Girls Mixed** (U10, U12, U14, U16) and **Girls Only** (U14, U16). `/t/<slug>` shows that age group's **Groups** (slots fill in live during the draw, then turn into tables), **Fixtures** and **Teams**.
+- **Admin:** sign in at `/login`. `/admin` lists the age groups and has a **Clubs & logos** tab. `/admin/t/<slug>` has four steps: **Teams**, **Groups & draw**, **Fixtures**, **Live scores**.
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+`.env` needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see `.env.example`).
+
+## Database
+
+`supabase/schema.sql` creates `clubs`, `tournaments` (one per age group), `groups`, `teams`, `matches` and `admins`, the security rules, live updates and the `team-logos` storage bucket.
+`supabase/seed.sql` adds the 10 clubs (logos in `public/logos`), the 6 age groups and the confirmed teams from the organiser's sheet.
+Both are applied to the project and are safe to run again.
+
+Security: anyone can **read**. Only emails listed in `public.admins` can **write**. The admin login is in `admin-login.local` (not committed).
+
+### Adding another admin
+
+1. Supabase dashboard → Authentication → Users → **Add user** (tick "Auto confirm").
+2. SQL editor: `insert into public.admins (email) values ('name@example.com');`
+3. Recommended: Authentication → Sign In / Providers → turn off **Allow new users to sign up**.
+
+## Draw-day workflow
+
+1. **Teams:** check the confirmed teams. Each team belongs to a club (for the logo) and has its own **colour**, shown as a ring around the logo, so e.g. Kickerz A–D are easy to tell apart. A team can also get its own logo. Add a late entry (e.g. the possible 3rd U16 girls team) with **Add a team**. For a club that isn't listed yet, choose **+ New club / school…**, type its name and upload its badge; the club is saved too, so it can be picked in other age groups.
+2. **Groups & draw:** pick the number of groups and the size of each one (uneven groups, or one big group, are fine). Then record the physical draw: click the team that came out, then the slot it was drawn into (A1, B3, …), or the slot first and then the team. Slots can be filled in any order. Click a placed team to move it, or ✕ to send it back to the pot. The public page updates live.
+3. **Fixtures:** **Generate group fixtures** makes a round-robin inside each group (slot 1 v 2 first), spread across the pitches set under **Details**, with rests between games where possible. Every match number, pitch, time and team can be edited. **Add knockout match** adds semi-finals/finals with placeholders like "Winner A" until the teams are known.
+4. **Live scores:** tap +/− for goals. The first goal marks a match **Live**; set **Full time** when it ends. Group tables update for everyone straight away.
+
+Club logos can be replaced any time in **Admin → Clubs & logos**; every team of that club updates.
+
+## Deploy
+
+Run `npm run build` and upload `dist/`. SPA routing is handled by `public/_redirects` (Netlify) and `vercel.json` (Vercel).
+Other hosts need a rewrite of all paths to `/index.html`. Set the two `VITE_` env vars on the host.

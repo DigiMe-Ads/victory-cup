@@ -8,7 +8,8 @@ const STATUSES = [
   { id: 'finished', label: 'Full time', active: 'bg-mint text-navy' },
 ]
 
-export default function ScoreRow({ match, teamsById, stageLabel, onUpdate }) {
+// needsPens: a drawn knockout (or level two-leg tie) – show the shoot-out score.
+export default function ScoreRow({ match, teamsById, stageLabel, needsPens, aggText, onUpdate }) {
   const home = teamsById[match.home_team_id]
   const away = teamsById[match.away_team_id]
   const hs = match.home_score ?? 0
@@ -23,7 +24,19 @@ export default function ScoreRow({ match, teamsById, stageLabel, onUpdate }) {
     onUpdate(match.id, patch)
   }
 
+  function setPens(side, delta) {
+    const hp = match.home_pens ?? 0
+    const ap = match.away_pens ?? 0
+    onUpdate(match.id, {
+      home_pens: side === 'home' ? Math.max(0, hp + delta) : hp,
+      away_pens: side === 'away' ? Math.max(0, ap + delta) : ap,
+    })
+  }
+
+  const waiting = !match.home_team_id || !match.away_team_id
+
   function walkover(winner) {
+    if (waiting) return
     const name = teamsById[winner === 'home' ? match.away_team_id : match.home_team_id]?.name
     if (!confirm(`Record a walkover (3–0) because ${name} did not show on time?`)) return
     onUpdate(match.id, {
@@ -45,7 +58,7 @@ export default function ScoreRow({ match, teamsById, stageLabel, onUpdate }) {
           <span className="rounded-md bg-ice px-2 py-0.5">{stageLabel}</span>
           <span className="text-navy/40">#{match.match_no}</span>
         </span>
-        <div className="flex rounded-xl bg-navy/5 p-0.5">
+        <div className={`flex rounded-xl bg-navy/5 p-0.5 ${waiting ? 'pointer-events-none opacity-40' : ''}`} aria-disabled={waiting}>
           {STATUSES.map((s) => (
             <button
               key={s.id}
@@ -54,7 +67,7 @@ export default function ScoreRow({ match, teamsById, stageLabel, onUpdate }) {
                 onUpdate(match.id, {
                   status: s.id,
                   ...(s.id !== 'scheduled' && { home_score: hs, away_score: as }),
-                  ...(s.id === 'scheduled' && { home_score: null, away_score: null, note: null }),
+                  ...(s.id === 'scheduled' && { home_score: null, away_score: null, home_pens: null, away_pens: null, note: null }),
                 })
               }
               className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-bold transition ${match.status === s.id ? s.active : 'text-navy/50 hover:text-navy'}`}
@@ -65,11 +78,31 @@ export default function ScoreRow({ match, teamsById, stageLabel, onUpdate }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+      <div className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 ${waiting ? 'pointer-events-none opacity-40' : ''}`} aria-disabled={waiting}>
         <Side team={home} label={match.home_label} score={hs} onInc={() => setScore('home', 1)} onDec={() => setScore('home', -1)} />
         <span className="heading text-2xl text-navy/30">:</span>
         <Side team={away} label={match.away_label} score={as} onInc={() => setScore('away', 1)} onDec={() => setScore('away', -1)} />
       </div>
+
+      {waiting && (
+        <p className="mt-3 rounded-lg bg-sun/25 px-3 py-1.5 text-center text-xs font-bold">
+          Waiting for the qualified teams – they fill in when the earlier games are finished.
+        </p>
+      )}
+      {aggText && <p className="mt-3 text-center text-sm font-bold text-navy/60">{aggText}</p>}
+      {needsPens && (
+        <div className="mt-3 rounded-xl bg-sun/20 p-3">
+          <p className="mb-2 text-center font-cond text-sm font-bold tracking-wider uppercase">
+            Spot kicks (3 each, then sudden death)
+          </p>
+          <div className="flex items-center justify-center gap-4">
+            <PenStep value={match.home_pens} onDec={() => setPens('home', -1)} onInc={() => setPens('home', 1)} />
+            <span className="text-navy/30">–</span>
+            <PenStep value={match.away_pens} onDec={() => setPens('away', -1)} onInc={() => setPens('away', 1)} />
+          </div>
+          <p className="mt-2 text-center text-xs text-navy/50">Still level after penalties? Note the coin toss winner below.</p>
+        </div>
+      )}
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-navy/5 pt-3">
         <input
@@ -91,6 +124,20 @@ export default function ScoreRow({ match, teamsById, stageLabel, onUpdate }) {
         </div>
       </div>
     </motion.div>
+  )
+}
+
+function PenStep({ value, onInc, onDec }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <button onClick={onDec} aria-label="Remove penalty" className="grid size-8 cursor-pointer place-items-center rounded-lg bg-white text-navy">
+        <Minus className="size-4" strokeWidth={3} />
+      </button>
+      <span className="w-6 text-center font-display text-2xl font-bold">{value ?? 0}</span>
+      <button onClick={onInc} aria-label="Add penalty" className="grid size-8 cursor-pointer place-items-center rounded-lg bg-navy text-white">
+        <Plus className="size-4" strokeWidth={3} />
+      </button>
+    </div>
   )
 }
 

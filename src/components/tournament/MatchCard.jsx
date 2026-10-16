@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import TeamBadge from '../ui/TeamBadge'
 import StatusBadge from '../ui/StatusBadge'
 import { groupTitle } from '../../lib/draw'
+import { aggregate, matchWinner } from '../../lib/knockout'
 
 // What to call a match: "Group A", "Semi-final", …
 export function matchStageLabel(match, groupsById, single) {
@@ -10,20 +11,31 @@ export function matchStageLabel(match, groupsById, single) {
   return g ? groupTitle(g, single) : 'Group stage'
 }
 
-export default function MatchCard({ match, teamsById, groupsById, single }) {
+export default function MatchCard({ match, teamsById, groupsById, single, matches = [] }) {
   const home = teamsById[match.home_team_id]
   const away = teamsById[match.away_team_id]
   const hasScore = match.home_score != null && match.away_score != null && match.status !== 'scheduled'
+  const knockout = match.stage === 'knockout'
+  const koWinner = knockout ? matchWinner(match, matches.length ? matches : [match]) : null
   const winner =
     match.status === 'finished' && hasScore
-      ? match.home_score > match.away_score
-        ? 'home'
-        : match.away_score > match.home_score
-          ? 'away'
-          : 'draw'
+      ? koWinner
+        ? koWinner === match.home_team_id
+          ? 'home'
+          : 'away'
+        : match.home_score > match.away_score
+          ? 'home'
+          : match.away_score > match.home_score
+            ? 'away'
+            : 'draw'
+      : null
+  const pens = Boolean(knockout && match.home_pens != null && match.away_pens != null && (match.home_pens || match.away_pens))
+  const agg = knockout ? aggregate(match, matches) : null
+  const aggLine =
+    agg?.isLast && hasScore
+      ? `Aggregate ${agg.totals.get(match.home_team_id) ?? 0} – ${agg.totals.get(match.away_team_id) ?? 0}`
       : null
   const live = match.status === 'live'
-  const knockout = match.stage === 'knockout'
 
   return (
     <motion.div
@@ -58,6 +70,13 @@ export default function MatchCard({ match, teamsById, groupsById, single }) {
         </div>
         <Side team={away} label={match.away_label} dim={winner === 'home'} />
       </div>
+      {(aggLine || pens) && (
+        <p className="mt-2 text-center text-sm font-bold text-navy/70">
+          {aggLine}
+          {aggLine && pens && ' · '}
+          {pens && `${match.home_pens} – ${match.away_pens} on penalties`}
+        </p>
+      )}
       {match.note && <p className="mt-3 text-center text-xs font-semibold text-navy/50">{match.note}</p>}
     </motion.div>
   )

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import GroupSetup from './GroupSetup'
 import DrawBoard from './DrawBoard'
 import { useAction } from '../../hooks/useToast'
-import { addGroups, clearDraw, deleteGroups, placeTeam, updateGroup, updateTeam } from '../../lib/api'
+import { addGroups, clearDraw, clearMatches, deleteGroups, placeTeam, updateGroup, updateTeam } from '../../lib/api'
 import { slotLabel } from '../../lib/draw'
 
 // Step 2 in admin: create the groups, then record the draw slot by slot.
@@ -12,10 +12,12 @@ export default function GroupsAdmin({ tournament, groups, teams, matches, refres
   const single = groups.length === 1
 
   async function handleCreate(rows) {
-    const groupGames = matches.filter((m) => m.stage === 'group').length
-    if (groups.length && !confirm(`Replace the groups? The draw${groupGames ? ` and ${groupGames} group matches` : ''} will be cleared.`)) return
+    const games = matches.length
+    if (groups.length && !confirm(`Replace the groups? The draw${games ? ` and all ${games} matches (group and knockout)` : ''} will be cleared.`)) return
     const ok = await run(async () => {
       await clearDraw(tournament.id)
+      // Knockouts point at the old groups, so they go too (recreate them in Fixtures).
+      await clearMatches(tournament.id, 'knockout')
       await deleteGroups(groups.map((g) => g.id))
       await addGroups(rows.map((r) => ({ ...r, tournament_id: tournament.id })))
       return true

@@ -3,7 +3,7 @@ import GroupCard from './GroupCard'
 import TeamBadge from '../ui/TeamBadge'
 
 // Public view of the draw: every group with its slots (fills in live on draw day).
-export default function GroupsView({ groups, teams, matches }) {
+export default function GroupsView({ groups, teams, matches, qualify = 0, qualifyText }) {
   const pot = teams.filter((t) => !t.group_id)
 
   if (!groups.length) {
@@ -22,7 +22,7 @@ export default function GroupsView({ groups, teams, matches }) {
     <div className="space-y-6">
       <div className={`grid gap-5 ${single ? '' : 'md:grid-cols-2'} ${groups.length > 2 ? 'xl:grid-cols-3' : ''}`}>
         {groups.map((g, i) => (
-          <GroupCard key={g.id} group={g} teams={teams} matches={matches} single={single} index={i} />
+          <GroupCard key={g.id} group={g} teams={teams} matches={matches} single={single} index={i} qualify={qualify} qualifyText={qualifyText} />
         ))}
       </div>
       {pot.length > 0 && (

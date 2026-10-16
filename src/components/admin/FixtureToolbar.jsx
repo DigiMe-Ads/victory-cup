@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Clock, Eraser, Swords, Wand2 } from 'lucide-react'
+import { Clock, Eraser, Wand2 } from 'lucide-react'
 import Button from '../ui/Button'
 
 export default function FixtureToolbar({
@@ -10,7 +10,6 @@ export default function FixtureToolbar({
   onBreakChange,
   onGenerate,
   onTimes,
-  onKnockout,
   onClear,
 }) {
   const [open, setOpen] = useState(false)
@@ -21,14 +20,11 @@ export default function FixtureToolbar({
         <Button icon={Wand2} variant="sun" onClick={onGenerate} disabled={!canGenerate}>
           Generate group fixtures
         </Button>
-        <Button icon={Swords} variant="dark" onClick={onKnockout}>
-          Add knockout match
-        </Button>
         <Button icon={Clock} variant="ghost" onClick={() => setOpen(!open)} disabled={!hasMatches}>
           Kick-off times
         </Button>
         <Button icon={Eraser} variant="danger" onClick={onClear} disabled={!hasMatches}>
-          Clear all
+          Clear group matches
         </Button>
       </div>
       <p className="text-sm text-navy/60">
@@ -57,7 +53,7 @@ export default function FixtureToolbar({
             Fill all kick-off times
           </Button>
           <p className="w-full text-xs text-navy/60">
-            Times start at the category's start time and step by match length + break, following the match numbers.
+            Times start at the age group's start time and step by match length + break, following the match numbers. The knockouts move to straight after the last group game.
             You can still edit any single time.
           </p>
         </div>

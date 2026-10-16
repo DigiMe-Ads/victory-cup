@@ -99,3 +99,6 @@ body {
 .heading {
   @apply font-display font-bold uppercase tracking-tight;
 }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

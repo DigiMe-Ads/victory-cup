@@ -25,9 +25,9 @@ export default function Navbar() {
           <img
             src="/logos/victory.png"
             alt="Victory Football School"
-            className="h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-110"
+            className="h-11 w-auto shrink-0 object-contain transition-transform duration-300 group-hover:scale-110"
           />
-          <span className="leading-none">
+          <span className="hidden leading-none sm:block">
             <span className="heading block text-lg text-navy sm:text-xl">
               Victory <span className="text-red">Football</span> Carnival
             </span>
@@ -35,8 +35,11 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <NavItem to="/">Home</NavItem>
+          <a href="/#rules" className="rounded-lg px-3 py-2 text-sm font-bold text-navy/70 transition hover:text-red">
+            Rules
+          </a>
           {isAdmin && (
             <NavItem to="/admin">
               <LayoutDashboard className="size-4" /> <span className="hidden sm:inline">Admin</span>

@@ -1,5 +1,5 @@
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'motion/react'
+import { motion } from 'motion/react'
 import { lazy, Suspense } from 'react'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
@@ -21,40 +21,38 @@ export default function App() {
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">
-        <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo({ top: 0 })}>
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
-          >
-            <Suspense fallback={<Spinner />}>
-              <Routes location={location}>
-                <Route path="/" element={<Home />} />
-                <Route path="/t/:slug" element={<TournamentPage />} />
-                <Route path="/login" element={<Login />} />
-                <Route
-                  path="/admin"
-                  element={
-                    <RequireAdmin>
-                      <AdminDashboard />
-                    </RequireAdmin>
-                  }
-                />
-                <Route
-                  path="/admin/t/:slug"
-                  element={
-                    <RequireAdmin>
-                      <AdminTournament />
-                    </RequireAdmin>
-                  }
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={location.pathname}
+          onAnimationStart={() => window.scrollTo({ top: 0 })}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          <Suspense fallback={<Spinner />}>
+            <Routes location={location}>
+              <Route path="/" element={<Home />} />
+              <Route path="/t/:slug" element={<TournamentPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/admin"
+                element={
+                  <RequireAdmin>
+                    <AdminDashboard />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/admin/t/:slug"
+                element={
+                  <RequireAdmin>
+                    <AdminTournament />
+                  </RequireAdmin>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </motion.div>
       </main>
       <Footer />
     </div>

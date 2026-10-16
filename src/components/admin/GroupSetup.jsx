@@ -95,9 +95,9 @@ export default function GroupSetup({ teamCount, existing, onCreate, onCancel }) 
   )
 }
 
+// As in the tournament brief: 8+ teams → 2 groups, otherwise one group.
 function defaultGroups(teamCount) {
-  if (teamCount <= 5) return 1
-  return Math.max(2, Math.round(teamCount / 4))
+  return teamCount >= 8 ? 2 : 1
 }
 
 function Step({ icon: Icon, onClick, label }) {

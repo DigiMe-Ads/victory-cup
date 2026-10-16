@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, CalendarRange, Eye, LayoutGrid, Pencil, Trophy, Users } from 'lucide-react'
+import { motion } from 'motion/react'
+import { ArrowLeft, CalendarRange, Eye, LayoutGrid, ListOrdered, Pencil, Swords, Trophy, Users } from 'lucide-react'
 import TeamManager from '../../components/admin/TeamManager'
 import GroupsAdmin from '../../components/admin/GroupsAdmin'
 import FixtureBuilder from '../../components/admin/FixtureBuilder'
 import ScoreBoard from '../../components/admin/ScoreBoard'
 import StatusSwitch from '../../components/admin/StatusSwitch'
+import GroupsView from '../../components/tournament/GroupsView'
 import TournamentForm from '../../components/admin/TournamentForm'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
@@ -15,14 +16,18 @@ import Spinner from '../../components/ui/Spinner'
 import NotFound from '../NotFound'
 import { useTournamentData } from '../../hooks/useTournamentData'
 import { useAction } from '../../hooks/useToast'
+import { useKnockoutAutoFill } from '../../hooks/useKnockoutAutoFill'
+import { KO_FORMATS } from '../../lib/knockout'
 import { saveTournament, setTournamentStatus } from '../../lib/api'
 import { formatDate, formatTime } from '../../lib/format'
 
 const TABS = [
-  { id: 'teams', label: '1. Teams', icon: Users },
-  { id: 'draw', label: '2. Groups & draw', icon: LayoutGrid },
-  { id: 'fixtures', label: '3. Fixtures', icon: CalendarRange },
-  { id: 'scores', label: '4. Live scores', icon: Trophy },
+  { id: 'teams', label: 'Teams', icon: Users },
+  { id: 'draw', label: 'Groups & draw', icon: LayoutGrid },
+  { id: 'fixtures', label: 'Group fixtures', icon: CalendarRange },
+  { id: 'knockouts', label: 'Knockouts', icon: Swords },
+  { id: 'scores', label: 'Live scores', icon: Trophy },
+  { id: 'tables', label: 'Group tables', icon: ListOrdered },
 ]
 
 export default function AdminTournament() {
@@ -33,6 +38,7 @@ export default function AdminTournament() {
   const { tournament: t, loading, refresh } = data
   const [tab, setTab] = useState('draw')
   const [editing, setEditing] = useState(false)
+  useKnockoutAutoFill(data, !loading && Boolean(t))
 
   if (loading) return <Spinner />
   if (!t) return <NotFound />
@@ -88,20 +94,29 @@ export default function AdminTournament() {
         <Tabs tabs={TABS} active={tab} onChange={setTab} layoutId="admin-tab" />
       </div>
 
-      <AnimatePresence mode="wait">
+      <>
         <motion.div
           key={tab}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.2 }}
         >
           {tab === 'teams' && <TeamManager {...data} />}
           {tab === 'draw' && <GroupsAdmin {...data} />}
-          {tab === 'fixtures' && <FixtureBuilder {...data} />}
+          {tab === 'fixtures' && <FixtureBuilder {...data} stage="group" />}
+          {tab === 'knockouts' && <FixtureBuilder {...data} stage="knockout" />}
           {tab === 'scores' && <ScoreBoard {...data} />}
+          {tab === 'tables' && (
+            <GroupsView
+              groups={data.groups}
+              teams={data.teams}
+              matches={data.matches}
+              qualify={KO_FORMATS[t.ko_format]?.count ?? 0}
+              qualifyText={KO_FORMATS[t.ko_format]?.qualify}
+            />
+          )}
         </motion.div>
-      </AnimatePresence>
+      </>
 
       <Modal open={editing} onClose={() => setEditing(false)} title="Age group details" wide>
         {editing && <TournamentForm initial={t} onSubmit={handleSave} onCancel={() => setEditing(false)} />}

@@ -21,12 +21,12 @@ where not exists (select 1 from public.clubs c where c.short_name = v.short_name
 insert into public.tournaments
   (name, slug, segment, age_group, event_date, start_time, venue, match_minutes, pitches, sort_order, description)
 values
-  ('Under 10', 'u10-mixed', 'mixed', 'U10', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 12, 2, 1, 'Boys & girls mixed.'),
-  ('Under 12', 'u12-mixed', 'mixed', 'U12', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 12, 2, 2, 'Boys & girls mixed.'),
-  ('Under 14', 'u14-mixed', 'mixed', 'U14', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 12, 2, 3, 'Boys & girls mixed.'),
-  ('Under 16', 'u16-mixed', 'mixed', 'U16', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 12, 2, 4, 'Boys & girls mixed.'),
-  ('Under 14 Girls', 'u14-girls', 'girls', 'U14', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 12, 1, 5, 'Girls only.'),
-  ('Under 16 Girls', 'u16-girls', 'girls', 'U16', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 12, 1, 6, 'Girls only. One more team may still confirm.')
+  ('Under 10', 'u10-mixed', 'mixed', 'U10', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 15, 2, 1, 'Boys & girls mixed.'),
+  ('Under 12', 'u12-mixed', 'mixed', 'U12', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 15, 2, 2, 'Boys & girls mixed.'),
+  ('Under 14', 'u14-mixed', 'mixed', 'U14', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 15, 2, 3, 'Boys & girls mixed.'),
+  ('Under 16', 'u16-mixed', 'mixed', 'U16', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 15, 2, 4, 'Boys & girls mixed.'),
+  ('Under 14 Girls', 'u14-girls', 'girls', 'U14', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 15, 1, 5, 'Girls only.'),
+  ('Under 16 Girls', 'u16-girls', 'girls', 'U16', '2026-10-31', '08:00', 'Police Park Grounds, Colombo', 15, 1, 6, 'Girls only. One more team may still confirm.')
 on conflict (slug) do nothing;
 
 -- ── Teams (only added to a category that has no teams yet) ──

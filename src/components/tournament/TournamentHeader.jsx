@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
-import { CalendarDays, Clock, MapPin } from 'lucide-react'
+import { CalendarDays, Clock, MapPin, Trophy } from 'lucide-react'
 import StatusBadge from '../ui/StatusBadge'
 import { formatDate, formatTime } from '../../lib/format'
 
 // Navy banner for one age category, with quick links to the other categories.
-export default function TournamentHeader({ tournament: t, siblings = [], teamCount, groupCount }) {
+export default function TournamentHeader({ tournament: t, siblings = [], teamCount, groupCount, qualifyText }) {
   const girls = t.segment === 'girls'
   return (
     <header className="relative overflow-hidden bg-navy text-white">
@@ -14,7 +14,7 @@ export default function TournamentHeader({ tournament: t, siblings = [], teamCou
 
       <div className="relative mx-auto max-w-6xl px-4 pt-8 pb-10">
         {siblings.length > 1 && (
-          <nav className="mb-6 flex gap-1.5 overflow-x-auto pb-1" aria-label="Age groups">
+          <nav className="no-scrollbar mb-6 flex gap-1.5 overflow-x-auto pb-1" aria-label="Age groups">
             {siblings.map((s) => (
               <Link
                 key={s.id}
@@ -52,6 +52,7 @@ export default function TournamentHeader({ tournament: t, siblings = [], teamCou
           <li className="flex items-center gap-2"><CalendarDays className="size-5 text-red" /> {formatDate(t.event_date)}</li>
           {t.start_time && <li className="flex items-center gap-2"><Clock className="size-5 text-red" /> From {formatTime(t.start_time)}</li>}
           {t.venue && <li className="flex items-center gap-2"><MapPin className="size-5 text-red" /> {t.venue}</li>}
+          {qualifyText && <li className="flex items-center gap-2"><Trophy className="size-5 text-sun" /> {qualifyText}</li>}
         </ul>
         {t.description && <p className="mt-3 max-w-2xl text-white/70">{t.description}</p>}
       </div>

@@ -75,7 +75,7 @@ export default function FixtureList({ matches, teamsById, groups, groupsById }) 
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 {list.map((m) => (
-                  <MatchCard key={m.id} match={m} teamsById={teamsById} groupsById={groupsById} single={single} />
+                  <MatchCard key={m.id} match={m} teamsById={teamsById} groupsById={groupsById} single={single} matches={matches} />
                 ))}
               </div>
             </motion.li>

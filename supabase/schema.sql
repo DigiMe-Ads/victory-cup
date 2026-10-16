@@ -102,6 +102,17 @@ create table if not exists public.matches (
 );
 create index if not exists matches_tournament_idx on public.matches (tournament_id, match_no, pitch);
 
+-- Knockouts: where each side comes from ("group:<id>:1" = group winner,
+-- "winner:<match id>"), penalty shoot-out score, and a shared key for two-leg ties.
+alter table public.matches add column if not exists home_source text;
+alter table public.matches add column if not exists away_source text;
+alter table public.matches add column if not exists home_pens int;
+alter table public.matches add column if not exists away_pens int;
+alter table public.matches add column if not exists tie_key text;
+
+-- Which knockout format this age group uses (see src/lib/knockout.js).
+alter table public.tournaments add column if not exists ko_format text;
+
 -- ── Row level security: public read, admin write ─────────────────
 do $$
 declare t text;

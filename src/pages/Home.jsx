@@ -6,7 +6,7 @@ import SectionTitle from '../components/home/SectionTitle'
 import Spinner from '../components/ui/Spinner'
 import { useTournaments } from '../hooks/useTournaments'
 import { SEGMENTS } from '../lib/format'
-import { VALUES } from '../data/info'
+import { RULES, VALUES } from '../data/info'
 
 const ICONS = { Trophy, Medal, Users, HeartHandshake }
 
@@ -54,6 +54,21 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 pt-6">
         <SectionTitle kicker="The line-up" title="Participating clubs" />
         <ClubWall clubs={clubs} />
+      </section>
+
+      <section id="rules" className="mx-auto max-w-6xl scroll-mt-24 px-4 pt-16">
+        <SectionTitle kicker="Know the game" title="Tournament rules" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {RULES.map((r, i) => (
+            <div key={r.title} className="card flex gap-3 p-4">
+              <span className="heading grid size-9 shrink-0 place-items-center rounded-lg bg-navy text-lg text-white">{i + 1}</span>
+              <div>
+                <h3 className="heading text-lg text-red">{r.title}</h3>
+                <p className="mt-0.5 text-sm text-navy/75">{r.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
     </>
   )

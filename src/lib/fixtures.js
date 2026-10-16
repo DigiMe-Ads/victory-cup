@@ -85,6 +85,57 @@ export function slotKickoff(startTime, slot, matchMinutes, breakMinutes = 0) {
   return `${hh}:${mm}`
 }
 
+// Kick-off times in match-number order. A new time slot starts whenever a pitch or
+// a team would be used twice, and each knockout round gets its own slot after the
+// group stage. Returns [[matchId, "HH:MM"], …].
+export function retime(matches, kickoffFor) {
+  const roundKey = (m) => (m.stage !== 'knockout' ? 'group' : /^semi/i.test(m.round_label ?? '') ? 'semi' : m.round_label ?? m.id)
+  const sorted = [...matches].sort((a, b) => a.match_no - b.match_no || a.pitch - b.pitch)
+  let slot = 1
+  let pitchesUsed = new Set()
+  let teamsBusy = new Set()
+  let round = null
+  return sorted.map((m) => {
+    const ids = [m.home_team_id, m.away_team_id].filter(Boolean)
+    const newRound = round !== null && roundKey(m) !== round
+    if (newRound || pitchesUsed.has(m.pitch) || ids.some((id) => teamsBusy.has(id))) {
+      slot += 1
+      pitchesUsed = new Set()
+      teamsBusy = new Set()
+    }
+    round = roundKey(m)
+    pitchesUsed.add(m.pitch)
+    ids.forEach((id) => teamsBusy.add(id))
+    return [m.id, kickoffFor(slot)]
+  })
+}
+
+const toMin = (t) => {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
+}
+const toTime = (min) => `${String(Math.floor(min / 60) % 24).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`
+
+// When the last group game ends ("HH:MM"), or null without timed group games.
+export function groupStageEnd(matches, matchMinutes, breakMinutes = 0) {
+  const times = matches.filter((m) => m.stage === 'group' && m.kickoff).map((m) => toMin(m.kickoff.slice(0, 5)))
+  return times.length ? toTime(Math.max(...times) + matchMinutes + breakMinutes) : null
+}
+
+// Knockout kick-offs straight after the group stage: each round in its own slot.
+export function retimeKnockouts(matches, start, matchMinutes, breakMinutes = 0) {
+  const ko = matches.filter((m) => m.stage === 'knockout')
+  if (!start) return []
+  return retime(ko, (slot) => toTime(toMin(start) + (slot - 1) * (matchMinutes + breakMinutes)))
+}
+
+// Knockout matches set to kick off before the group games are over.
+export function earlyKnockouts(matches, matchMinutes) {
+  const end = groupStageEnd(matches, matchMinutes)
+  if (!end) return []
+  return matches.filter((m) => m.stage === 'knockout' && m.kickoff && toMin(m.kickoff.slice(0, 5)) < toMin(end))
+}
+
 // Matches sharing a kick-off time (or the same number when no time is set).
 export function groupByKickoff(matches) {
   const sorted = [...matches].sort(
